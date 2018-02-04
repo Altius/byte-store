@@ -5,23 +5,26 @@
 set usage_text = 'Usage:\
 \
     query-bytestore.sh [ --whole-genome | --mutual-regions | --diagonal-walk <int> ] \
-                       [ --xfac2015                                           | \
-                         --uniprobe                                           | \
-                         --taipale                                            | \
-                         --jaspar                                             | \
-                         --hg38-jaccard                                       | \
-                         --hg38-dnaseI                                        | \
-                         --hg38-kmer-pearson                                  | \
-                         --hg38-229sample-dnaseI-pearsonr-WM20170911          | \
-                         --hg38-229sample-dnaseI-pearsonr-masterlist          | \
-                         --hg38-229sample-presenceabsence-jaccard-masterlist  | \
-                         --hg38-229sample-kmer-pearsonr-masterlist            | \
-                         --hg38-229sample-3clip-pearsonr-masterlist           | \
-                         --hg38-229sample-3clip-euclidean-masterlist          | \
-                         --hg38-3clip-euclidean                               | \
-                         --hg38-644sample-dnaseI-pearsonr-masterlist          | \
-                         --mm10-dnaseI                                        | \
-                         --mm10-198sample-dnaseI-pearsonr-092017              |] \
+                       [ --xfac2015                                            | \
+                         --uniprobe                                            | \
+                         --taipale                                             | \
+                         --jaspar                                              | \
+                         --hg38-jaccard                                        | \
+                         --hg38-dnaseI                                         | \
+                         --hg38-5mer-pearson                                   | \
+                         --hg38-229sample-dnaseI-pearsonr-WM20170911           | \
+                         --hg38-229sample-dnaseI-pearsonr-masterlist           | \
+                         --hg38-229sample-presenceabsence-jaccard-masterlist   | \
+                         --hg38-229sample-5mer-pearsonr-masterlist             | \
+                         --hg38-229sample-3clip-pearsonr-masterlist            | \
+                         --hg38-229sample-3clip-euclidean-masterlist           | \
+                         --hg38-3clip-euclidean                                | \
+                         --hg38-644sample-dnaseI-pearsonr-masterlist           | \
+                         --hg38-644sample-dnaseI-pearsonr-masterlist-1M-subset | \
+                         --hg38-644sample-5mer-pearsonr-masterlist             | \
+                         --hg38-16component-NMF-pearsonr                       | \
+                         --mm10-dnaseI                                         | \
+                         --mm10-198sample-dnaseI-pearsonr-092017               |] \
                          --mm10-198sample-dnaseI-pearsonr-092417 ] \
                        [ --bytestore-sort | --sort-bed-sort | --score-sort ] \
                          --within-range A:B | --outside-range A:B \
@@ -39,7 +42,7 @@ set usage_text = 'Usage:\
     BED interval data: chromosome, start, and stop positions. \
 '
 
-set temp=(`getopt -s tcsh -o hbscgmD:xujgtdk23Mw:o: --long help,bytestore-sort,sort-bed-sort,score-sort,whole-genome,mutual-regions,diagonal-walk:,xfac2015,uniprobe,jaspar,taipale,hg38-jaccard,hg38-dnaseI,hg38-kmer-pearson,hg38-229sample-dnaseI-pearsonr-WM20170911,hg38-229sample-dnaseI-pearsonr-masterlist,hg38-229sample-presenceabsence-jaccard-masterlist,hg38-229sample-kmer-pearsonr-masterlist,hg38-229sample-3clip-pearsonr-masterlist,hg38-229sample-3clip-euclidean-masterlist,hg38-3clip-euclidean,hg38-644sample-dnaseI-pearsonr-masterlist,mm10-198sample-dnaseI-pearsonr-092017,mm10-198sample-dnaseI-pearsonr-092417,mm10-dnaseI,within-range:,outside-range: -- $argv:q`)
+set temp=(`getopt -s tcsh -o hbscgmD:xujgtdk23Mw:o: --long help,bytestore-sort,sort-bed-sort,score-sort,whole-genome,mutual-regions,diagonal-walk:,xfac2015,uniprobe,jaspar,taipale,hg38-jaccard,hg38-dnaseI,hg38-5mer-pearson,hg38-229sample-dnaseI-pearsonr-WM20170911,hg38-229sample-dnaseI-pearsonr-masterlist,hg38-229sample-presenceabsence-jaccard-masterlist,hg38-229sample-5mer-pearsonr-masterlist,hg38-229sample-3clip-pearsonr-masterlist,hg38-229sample-3clip-euclidean-masterlist,hg38-3clip-euclidean,hg38-644sample-dnaseI-pearsonr-masterlist,hg38-644sample-dnaseI-pearsonr-masterlist-1M-subset,hg38-644sample-5mer-pearsonr-masterlist,mm10-198sample-dnaseI-pearsonr-092017,hg38-16component-NMF-pearsonr,mm10-198sample-dnaseI-pearsonr-092417,mm10-dnaseI,within-range:,outside-range: -- $argv:q`)
 if ( $? != 0 ) then
     echo "Error: Getopt failed. Terminating..." > /dev/stderr
     exit 1
@@ -147,8 +150,8 @@ while (1)
         shift;
         breaksw;
     case -k:
-    case --hg38-kmer-pearson:
-        set db = "hg38-kmer-pearson"
+    case --hg38-5mer-pearson:
+        set db = "hg38-5mer-pearson"
         @ db_cnt += 1
         shift;
         breaksw;
@@ -168,8 +171,8 @@ while (1)
         @ db_cnt += 1
         shift;
         breaksw;
-    case --hg38-229sample-kmer-pearsonr-masterlist:
-        set db = "hg38-229sample-kmer-pearsonr-masterlist"
+    case --hg38-229sample-5mer-pearsonr-masterlist:
+        set db = "hg38-229sample-5mer-pearsonr-masterlist"
         @ db_cnt += 1
         shift;
         breaksw;
@@ -191,6 +194,21 @@ while (1)
         breaksw;
     case --hg38-644sample-dnaseI-pearsonr-masterlist:
         set db = "hg38-644sample-dnaseI-pearsonr-masterlist"
+        @ db_cnt += 1
+        shift;
+        breaksw;
+    case --hg38-644sample-dnaseI-pearsonr-masterlist-1M-subset:
+        set db = "hg38-644sample-dnaseI-pearsonr-masterlist-1M-subset"
+        @ db_cnt += 1
+        shift;
+        breaksw;
+    case --hg38-644sample-5mer-pearsonr-masterlist:
+        set db = "hg38-644sample-5mer-pearsonr-masterlist"
+        @ db_cnt += 1
+        shift;
+        breaksw;
+    case --hg38-16component-NMF-pearsonr:
+        set db = "hg38-16component-NMF-pearsonr"
         @ db_cnt += 1
         shift;
         breaksw;
@@ -361,7 +379,7 @@ else if ( $db == "hg38-dnaseI" ) then
     set master = "/net/seq/data/projects/bytestore/827_master_list_v061417a/pearson/prerequisites/results/master_with_row_indices.bed"
     set store = "/net/seq/data/projects/bytestore/827_master_list_v061417a/pearson/production/results/827_master_list_v061417a.100000r.bs"
     set db_type = "pearson-r-sqr-split"
-else if ( $db == "hg38-kmer-pearson" ) then
+else if ( $db == "hg38-5mer-pearson" ) then
     set master = "/net/seq/data/projects/bytestore/827_master_list_v090517a_cross_5_mers/pearson/prerequisites/results/master_with_row_indices.bed"
     set store = "/net/seq/data/projects/bytestore/827_master_list_v090517a_cross_5_mers/pearson/production/results/827_master_list_v090517a_cross_5_mers.25000r.bs"
     set db_type = "pearson-r-sqr-split"
@@ -377,7 +395,7 @@ else if ( $db == "hg38-229sample-presenceabsence-jaccard-masterlist" ) then
     set master = "/net/seq/data/projects/bytestore/229_master_list_v091317a/norm_dnaseI_density/jaccard/prerequisites/results/master_with_row_indices.bed"
     set store = "/net/seq/data/projects/bytestore/229_master_list_v091317a/norm_dnaseI_density/jaccard/production/results/229_master_list_v091317a.norm_dnaseI_density.25000r.bs"
     set db_type = "jaccard-index-sqr-split"
-else if ( $db == "hg38-229sample-kmer-pearsonr-masterlist" ) then
+else if ( $db == "hg38-229sample-5mer-pearsonr-masterlist" ) then
     set master = "/net/seq/data/projects/bytestore/229_master_list_v091317a/kmer_composition/pearson_r/prerequisites/results/master_with_row_indices.bed"
     set store = "/net/seq/data/projects/bytestore/229_master_list_v091317a/kmer_composition/pearson_r/production/results/229_master_list_v091317a.kmer_composition.25000r.bs"
     set db_type = "pearson-r-sqr-split"
@@ -394,8 +412,20 @@ else if ( $db == "hg38-3clip-euclidean" ) then
     set store = "/net/seq/data/projects/bytestore/827_master_list_v090717a_cross_clipped_dnase_density/euclidean/production/results/827_master_list_v090717a_cross_clipped_dnase_density.25000r.bs"
     set db_type = "normalized-euclidean-distance-sqr-split"
 else if ( $db == "hg38-644sample-dnaseI-pearsonr-masterlist" ) then
+    set master = "/net/seq/data/projects/bytestore/644_master_list_v03118a/all_dnaseI_density/pearson_r/prerequisites/results/master_with_row_indices.bed"
+    set store = "/net/seq/data/projects/bytestore/644_master_list_v03118a/all_dnaseI_density/pearson_r/production/results/644_master_list_v03118a.all_dnaseI_density.25000r.bs"
+    set db_type = "pearson-r-sqr-split"
+else if ( $db == "hg38-644sample-dnaseI-pearsonr-masterlist-1M-subset" ) then
     set master = "/net/seq/data/projects/bytestore/644_master_list_v03118a/norm_dnaseI_density/pearson_r/prerequisites/results/master_with_row_indices.bed"
     set store = "/net/seq/data/projects/bytestore/644_master_list_v03118a/norm_dnaseI_density/pearson_r/production/results/644_master_list_v03118a.norm_dnaseI_density.25000r.bs"
+    set db_type = "pearson-r-sqr-split"
+else if ( $db == "hg38-644sample-5mer-pearsonr-masterlist" ) then
+    set master = "/net/seq/data/projects/bytestore/644_master_list_v03118a/kmer_composition/pearson_r/prerequisites/results/master_with_row_indices.bed"
+    set store = "/net/seq/data/projects/bytestore/644_master_list_v03118a/kmer_composition/pearson_r/production/results/644_master_list_v03118a.kmer_composition.25000r.bs"
+    set db_type = "pearson-r-sqr-split"
+else if ( $db == "hg38-16component-NMF-pearsonr" ) then
+    set master = "/net/seq/data/projects/bytestore/16_component_NMF_v020218a/nmf/pearson_r/prerequisites/results/master_with_row_indices.bed"
+    set store = "/net/seq/data/projects/bytestore/16_component_NMF_v020218a/nmf/pearson_r/production/results/16_component_NMF_v020218a.nmf.25000r.bs"
     set db_type = "pearson-r-sqr-split"
 else if ( $db == "mm10-198sample-dnaseI-pearsonr-092017" ) then
     set master = "/net/seq/data/projects/bytestore/198_mouse_master_list_v091917a/normalized_dnaseI_density/pearson_r/prerequisites/results/master_with_row_indices.bed"
